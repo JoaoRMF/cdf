@@ -282,9 +282,19 @@ define([
      */
     var insertInQueue = function(component) {
       var time = getCurrentTime();
+
       // normalize invalid refresh
       if(!(component.refreshPeriod > 0)) {
         component.refreshPeriod = NO_REFRESH;
+
+        //tries to fetch the component refresh rate from the data source definition
+        if(component.chartDefinition && component.chartDefinition.dataSource && dashboard.dataSources &&
+            dashboard.dataSources[component.chartDefinition.dataSource] &&
+            !Number.isNaN(dashboard.dataSources[component.chartDefinition.dataSource].componentRefreshPeriod) &&
+            Number.parseInt(dashboard.dataSources[component.chartDefinition.dataSource].componentRefreshPeriod) > 0) {
+          component.refreshPeriod = Number.parseInt(dashboard.dataSources[component.chartDefinition.dataSource].componentRefreshPeriod);
+        }
+
       }
       if(component.refreshPeriod != NO_REFRESH) {
         //get next refresh time for component

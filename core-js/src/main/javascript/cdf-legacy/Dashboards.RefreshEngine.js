@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -110,6 +110,15 @@ Dashboards.RefreshEngine = function(){// Manages periodic refresh of components
     // normalize invalid refresh
     if (!(component.refreshPeriod > 0)) {
       component.refreshPeriod = NO_REFRESH;
+
+      //tries to fetch the component refresh rate from the data source definition
+      if(component.chartDefinition && component.chartDefinition.dataSource && dashboard.dataSources &&
+          dashboard.dataSources[component.chartDefinition.dataSource] &&
+          !Number.isNaN(dashboard.dataSources[component.chartDefinition.dataSource].componentRefreshPeriod) &&
+          Number.parseInt(dashboard.dataSources[component.chartDefinition.dataSource].componentRefreshPeriod) > 0) {
+        component.refreshPeriod = Number.parseInt(dashboard.dataSources[component.chartDefinition.dataSource].componentRefreshPeriod);
+      }
+
     }
     if (component.refreshPeriod != NO_REFRESH) {
       //get next refresh time for component
