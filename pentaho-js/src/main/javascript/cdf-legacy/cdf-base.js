@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -52,6 +52,10 @@ wd.cdf.helper = {
         fullPath += "/" + clean(options.action);
     }
     return fullPath;
+  },
+
+  httpUrlToWebSockeUrl: function( url ) {
+    return url.replace(/(http)(s)?\:\/\//i, "ws$2://");
   }
 };
 
@@ -66,9 +70,13 @@ wd.cdf.endpoints = {
 
   getPluginBase: function( plugin ) { return wd.cdf.endpoints.getWebapp() + "/plugin/" + plugin + "/api"; },
 
+  getPluginWebsocketBase: function( plugin ) { return wd.cdf.helper.httpUrlToWebSockeUrl(wd.cdf.endpoints.getWebapp()) + plugin + "/websocket"; },
+
   getCdfBase: function () { return wd.cdf.endpoints.getPluginBase( CDF_PLUGIN_NAME ); },
 
   getCdaBase: function () { return wd.cdf.endpoints.getPluginBase('cda'); },
+
+  getCdaWebsocketBase: function () { return wd.cdf.endpoints.getPluginWebsocketBase('cda'); },
 
   getPluginEndpoint: function( plugin, endpoint ) { return wd.cdf.endpoints.getPluginBase(plugin) + "/" + endpoint; },
 
@@ -165,6 +173,8 @@ wd.cdf.endpoints = {
   getCaptifyZoom: function(){ return wd.cdf.endpoints.getStaticResource("js-legacy/lib/captify/zoom.html"); },
 
   getDoQuery: function(){ return wd.cdf.endpoints.getCdaBase() + "/doQuery?"; },
+
+  getWebsocketQuery: function(){ return wd.cdf.endpoints.getCdaWebsocketBase() + "/query"; },
 
   getUnwrapQuery: function( parameters ){ return wd.cdf.endpoints.getCdaBase() + "/unwrapQuery?" + $.param( parameters ); },
 

@@ -92,6 +92,7 @@ define([
      */
     defaults: {
       url: CdaQueryExt.getDoQuery(),
+      websocketUrl: CdaQueryExt.getWebsocketQuery(),
       file: "",
       id: "",
       outputIdx: "1",
@@ -348,7 +349,44 @@ define([
       } else if(this.getOption('successCallback') !== null) {
         return this.doQuery(outsideCallback);
       }
-    }
+    },
+
+    /**
+     * @summary Executes a server-side query.
+     * @description Executes a server-side query.
+     *
+     * @param {function} [successCallback] Success callback.
+     * @param {function} [errorCallback]   Error callback.
+     */
+    doQuery: function(successCallback, errorCallback) {
+      if(!Utils.isFunction(this.getOption('successCallback'))) {
+        throw 'QueryNotInitialized';
+      }
+
+      var myself = this;
+      var settings = _.extend({}, this.getAjaxOptions(), {
+        data: this.buildQueryDefinition(),
+        url: this.getOption('url'),
+        success: this.getSuccessHandler(successCallback ? successCallback : this.getOption('successCallback')),
+        error: this.getErrorHandler(errorCallback ? errorCallback : _.bind(this.getOption('errorCallback'), this))
+      });
+
+      var exampleSocket = new WebSocket(this.getOption('websocketUrl'));
+
+      exampleSocket.onopen = function (event) {
+        exampleSocket.send(JSON.stringify(myself.buildQueryDefinition()));
+      }
+
+      exampleSocket.onmessage = function (event) {
+        myself.getSuccessHandler(successCallback ? successCallback : myself.getOption('successCallback'))(JSON.parse(event.data));
+      }
+
+      exampleSocket.onerror = function (event) {
+        myself.getErrorHandler(errorCallback ? errorCallback : _.bind(myself.getOption('errorCallback'), myself))(JSON.parse(event.data));
+      }
+
+      //$.ajax(settings);
+    },
   };
 
   // Registering an object will use it to create a class by extending BaseQuery,
